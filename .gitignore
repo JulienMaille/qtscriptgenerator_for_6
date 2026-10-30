@@ -29,6 +29,7 @@ qtbindings/*/moc_*.cpp
 .qmake.stash
 
 # IDE caches and build outputs (regenerable; never commit these)
+/.cmake*/
 .qtc_clangd/
 .vs/
 *.pro.user
@@ -59,6 +60,7 @@ generator/_ptest/nondet.txt
 # build output, never committed. generator/curated/ holds the hand-maintained
 # sources that are re-attached to the fresh output.
 /generated_cpp/
+/jsx/
 /regen-test/
 
 # test.ps1 output: the evaluator stdout/stderr and the surface coverage suite it

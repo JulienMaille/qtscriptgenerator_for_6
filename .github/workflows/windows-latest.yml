@@ -2,9 +2,8 @@ name: Windows Qt 6.12
 
 on:
   push:
-    # qt6 is the branch that carries the Qt 6 port: the generator build, the
-    # regeneration and the binding tests must run on every push to it.
-    branches: [main, qt6]
+    # Cover the current default branch, its planned successor, and the port.
+    branches: [master, main, qt6]
     tags: ['v*']
   pull_request:
   workflow_dispatch:
