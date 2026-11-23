@@ -463,7 +463,15 @@ void _ScopeModelItem::addFunction(FunctionModelItem item)
 {
   _M_functions.insert(item->name(), item);
 
-  // Mirror every multihash insertion, including repeated items.
+  // Keep declaration order for functions(), in step with the multihash.
+  // Overloads of one name are distinct items, so this is append-only, pruned
+  // by identity in removeFunction(); an item added twice is not appended
+  // twice.
+  for (int i = 0; i < _M_functionOrder.size(); ++i) {
+    if (_M_functionOrder.at(i) == item) {
+      return;
+    }
+  }
   _M_functionOrder.append(item);
 }
 
@@ -471,7 +479,12 @@ void _ScopeModelItem::addFunctionDefinition(FunctionDefinitionModelItem item)
 {
   _M_functionDefinitions.insert(item->name(), item);
 
-  // Mirror every multihash insertion, including repeated items.
+  // Keep declaration order for functionDefinitions(), same as addFunction().
+  for (int i = 0; i < _M_functionDefinitionOrder.size(); ++i) {
+    if (_M_functionDefinitionOrder.at(i) == item) {
+      return;
+    }
+  }
   _M_functionDefinitionOrder.append(item);
 }
 
@@ -1108,4 +1121,3 @@ void _MemberModelItem::setMutable(bool isMutable)
 }
 
 // kate: space-indent on; indent-width 2; replace-tabs on;
-
