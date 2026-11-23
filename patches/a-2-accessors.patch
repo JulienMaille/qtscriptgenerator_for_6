@@ -1,0 +1,25 @@
+diff --git a/generator/parser/codemodel.cpp b/generator/parser/codemodel.cpp
+index a8b3f9b..a80f301 100644
+--- a/generator/parser/codemodel.cpp
++++ b/generator/parser/codemodel.cpp
+@@ -412,17 +412,17 @@ ClassList _ScopeModelItem::classes() const
+ 
+ TypeAliasList _ScopeModelItem::typeAliases() const
+ {
+-  return _M_typeAliases.values();
++  return _M_typeAliasOrder;
+ }
+ 
+ VariableList _ScopeModelItem::variables() const
+ {
+-  return _M_variables.values();
++  return _M_variableOrder;
+ }
+ 
+ FunctionList _ScopeModelItem::functions() const
+ {
+-  return _M_functions.values();
++  return _M_functionOrder;
+ }
+ 
+ void _ScopeModelItem::addEnumsDeclaration(const QString &enumsDeclaration)
