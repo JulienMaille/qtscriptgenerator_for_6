@@ -86,11 +86,17 @@ static bool outArgEngagesObjectPack(const QList<QPair<QString, AbstractMetaType 
 // Qt 6 (C4715): a pure virtual wrapper terminates through qFatal, but MSVC does
 // not see it as returning, so the branch needs an expression that ends the
 // function anyway. This is the default value of the declared return type:
-// nullptr for pointers, a value-constructed plain type otherwise
+// an lvalue for non-const references, nullptr for pointers, and a
+// value-constructed plain type otherwise
 // ("const QSize &" -> "QSize()"). The statement is behind qFatal and never
 // runs; it exists so every compiler sees all paths accounted for.
 static QString defaultReturnValueText(const AbstractMetaType *type)
 {
+    if (type->isReference() && (!type->isConstant() || type->indirections() > 0)) {
+        QString referenced = type->cppSignature();
+        referenced.chop(1); // Remove the trailing '&', retaining pointee constness.
+        return QLatin1String("*static_cast<") + referenced + QLatin1String(" *>(nullptr)");
+    }
     if (type->indirections() > 0)
         return QLatin1String("nullptr");
     QString plain = type->cppSignature();
