@@ -210,7 +210,8 @@ QString TypeInfo::toString() const
 
   foreach (QString elt, arrayElements ())
     {
-      tmp += QLatin1String ("[");
+      tmp += QLatin1String ("[
+");
       tmp += elt;
       tmp += QLatin1String ("]");
     }
