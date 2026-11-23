@@ -3027,9 +3027,12 @@ bool AbstractMetaBuilder::inheritTemplate(AbstractMetaClass *subclass,
     }
 
     AbstractMetaFunctionList funcs = subclass->functions();
-    // Functions added by this loop, so the duplicate check below sees the
-    // copies already inherited into the subclass.
-    AbstractMetaFunctionList inherited;
+    // Qt 6 (issue #5): seed the duplicate check with the functions the
+    // subclass already carries, so a template member that resolves to a
+    // signature the subclass got through another template chain (or already
+    // declares itself) is dropped here instead of emitted a second time. The
+    // loop below appends its own copies, so the check sees both routes.
+    AbstractMetaFunctionList inherited = funcs;
 
     // Qt 6 (audit, P-D): a member of a container template can spell its return
     // type or an argument with the injected class name (`QList &assign(...)`,
@@ -3127,13 +3130,24 @@ bool AbstractMetaBuilder::inheritTemplate(AbstractMetaClass *subclass,
             continue;
         }
 
+        // Qt 6 (issue #5): the post-substitution signature, computed once for
+        // both the shadow check and the duplicate check below.
+        const QString inheritedSignature = f->minimalSignature();
+
         // if the instantiation has a function named the same as an existing
-        // function we have shadowing so we need to skip it.
+        // function with a DIFFERENT signature we have shadowing, so we skip
+        // it. A same-name function with an identical signature is the same
+        // member reaching the subclass by another route; the duplicate check
+        // below keeps the first copy instead of letting the two collide as
+        // overloads. (Previously any same-name function shadowed, which hid
+        // the duplicate from the signature check when it arrived through a
+        // second template chain.)
         bool found = false;
         for (int i=0; i<funcs.size(); ++i) {
-            if (funcs.at(i)->name() == f->name()) {
+            if (funcs.at(i)->name() == f->name()
+                && funcs.at(i)->minimalSignature() != inheritedSignature) {
                 found = true;
-                continue;
+                break;
             }
         }
         if (found) {
@@ -3153,7 +3167,10 @@ bool AbstractMetaBuilder::inheritTemplate(AbstractMetaClass *subclass,
         // require a qsizetype conversion that a script number never satisfies:
         // the member answers "could not find a function match". Keep the first
         // copy; the signature is the C++ one, after substitution.
-        const QString inheritedSignature = f->minimalSignature();
+        // Qt 6 (issue #5): the check now also sees the functions the subclass
+        // already had (see `inherited` above), so a duplicate dropped here is
+        // one declared twice in the template or already carried through another
+        // template chain.
         bool duplicate = false;
         foreach (AbstractMetaFunction *seen, inherited) {
             if (seen->minimalSignature() == inheritedSignature) {
@@ -3162,7 +3179,7 @@ bool AbstractMetaBuilder::inheritTemplate(AbstractMetaClass *subclass,
             }
         }
         if (duplicate) {
-            m_lost_template_functions << QString("%1 <- %2::%3() : duplicate signature '%4' (declared twice in the template)")
+            m_lost_template_functions << QString("%1 <- %2::%3() : duplicate signature '%4' (declared twice in the template, or already present in the subclass)")
                                           .arg(subclass->name(), template_class->name(), function->name(),
                                                inheritedSignature);
             delete f;
