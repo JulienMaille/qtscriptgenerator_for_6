@@ -412,17 +412,17 @@ ClassList _ScopeModelItem::classes() const
 
 TypeAliasList _ScopeModelItem::typeAliases() const
 {
-  return _M_typeAliases.values();
+  return _M_typeAliasOrder;
 }
 
 VariableList _ScopeModelItem::variables() const
 {
-  return _M_variables.values();
+  return _M_variableOrder;
 }
 
 FunctionList _ScopeModelItem::functions() const
 {
-  return _M_functions.values();
+  return _M_functionOrder;
 }
 
 void _ScopeModelItem::addEnumsDeclaration(const QString &enumsDeclaration)
@@ -432,7 +432,7 @@ void _ScopeModelItem::addEnumsDeclaration(const QString &enumsDeclaration)
 
 FunctionDefinitionList _ScopeModelItem::functionDefinitions() const
 {
-  return _M_functionDefinitions.values();
+  return _M_functionDefinitionOrder;
 }
 
 EnumList _ScopeModelItem::enums() const
@@ -462,21 +462,46 @@ void _ScopeModelItem::addClass(ClassModelItem item)
 void _ScopeModelItem::addFunction(FunctionModelItem item)
 {
   _M_functions.insert(item->name(), item);
+
+  // Mirror every multihash insertion, including repeated items.
+  _M_functionOrder.append(item);
 }
 
 void _ScopeModelItem::addFunctionDefinition(FunctionDefinitionModelItem item)
 {
   _M_functionDefinitions.insert(item->name(), item);
+
+  // Mirror every multihash insertion, including repeated items.
+  _M_functionDefinitionOrder.append(item);
 }
 
 void _ScopeModelItem::addVariable(VariableModelItem item)
 {
   _M_variables.insert(item->name(), item);
+
+  // Keep declaration order for variables(), in step with the name -> item
+  // map. A name added twice replaces its entry in place, like addClass().
+  for (int i = 0; i < _M_variableOrder.size(); ++i) {
+    if (_M_variableOrder.at(i)->name() == item->name()) {
+      _M_variableOrder[i] = item;
+      return;
+    }
+  }
+  _M_variableOrder.append(item);
 }
 
 void _ScopeModelItem::addTypeAlias(TypeAliasModelItem item)
 {
   _M_typeAliases.insert(item->name(), item);
+
+  // Keep declaration order for typeAliases(), same as addVariable().
+  for (int i = 0; i < _M_typeAliasOrder.size(); ++i) {
+    if (_M_typeAliasOrder.at(i)->name() == item->name()) {
+      _M_typeAliasOrder[i] = item;
+      return;
+    }
+  }
+  _M_typeAliasOrder.append(item);
 }
 
 void _ScopeModelItem::addEnum(EnumModelItem item)
@@ -524,6 +549,13 @@ void _ScopeModelItem::removeFunction(FunctionModelItem item)
     {
       _M_functions.erase(it);
     }
+
+  for (int i = 0; i < _M_functionOrder.size(); ++i) {
+    if (_M_functionOrder.at(i) == item) {
+      _M_functionOrder.removeAt(i);
+      break;
+    }
+  }
 }
 
 void _ScopeModelItem::removeFunctionDefinition(FunctionDefinitionModelItem item)
@@ -540,6 +572,13 @@ void _ScopeModelItem::removeFunctionDefinition(FunctionDefinitionModelItem item)
     {
       _M_functionDefinitions.erase(it);
     }
+
+  for (int i = 0; i < _M_functionDefinitionOrder.size(); ++i) {
+    if (_M_functionDefinitionOrder.at(i) == item) {
+      _M_functionDefinitionOrder.removeAt(i);
+      break;
+    }
+  }
 }
 
 void _ScopeModelItem::removeVariable(VariableModelItem item)
@@ -548,6 +587,13 @@ void _ScopeModelItem::removeVariable(VariableModelItem item)
 
   if (it != _M_variables.end() && it.value() == item)
     _M_variables.erase(it);
+
+  for (int i = 0; i < _M_variableOrder.size(); ++i) {
+    if (_M_variableOrder.at(i) == item) {
+      _M_variableOrder.removeAt(i);
+      break;
+    }
+  }
 }
 
 void _ScopeModelItem::removeTypeAlias(TypeAliasModelItem item)
@@ -556,6 +602,13 @@ void _ScopeModelItem::removeTypeAlias(TypeAliasModelItem item)
 
   if (it != _M_typeAliases.end() && it.value() == item)
     _M_typeAliases.erase(it);
+
+  for (int i = 0; i < _M_typeAliasOrder.size(); ++i) {
+    if (_M_typeAliasOrder.at(i) == item) {
+      _M_typeAliasOrder.removeAt(i);
+      break;
+    }
+  }
 }
 
 void _ScopeModelItem::removeEnum(EnumModelItem item)

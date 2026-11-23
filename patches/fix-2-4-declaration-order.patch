@@ -1,8 +1,0 @@
-BEGIN
-Superseded. This combined file was truncated in transit and is NOT usable.
-The fix is in the three parts committed alongside it:
-  patches/a-1-codemodel-h.patch
-  patches/a-2-accessors.patch
-  patches/a-3-mutators.patch
-Apply all three, in that order (git apply patches/a-1-codemodel-h.patch patches/a-2-accessors.patch patches/a-3-mutators.patch).
-END
