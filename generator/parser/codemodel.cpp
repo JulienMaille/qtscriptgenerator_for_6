@@ -210,8 +210,7 @@ QString TypeInfo::toString() const
 
   foreach (QString elt, arrayElements ())
     {
-      tmp += QLatin1String ("[
-");
+      tmp += QLatin1String ("[");
       tmp += elt;
       tmp += QLatin1String ("]");
     }
@@ -1122,3 +1121,4 @@ void _MemberModelItem::setMutable(bool isMutable)
 }
 
 // kate: space-indent on; indent-width 2; replace-tabs on;
+
