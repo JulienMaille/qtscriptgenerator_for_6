@@ -403,7 +403,7 @@ bool AbstractMetaBuilder::build()
 
     pushScope(model_dynamic_cast<ScopeModelItem>(m_dom));
 
-    QHash<QString, ClassModelItem> typeMap = m_dom->classMap();
+    ClassList typeMap = m_dom->classes();
 
     // fix up QObject's in the type system..
     TypeDatabase *types = TypeDatabase::instance();
@@ -411,14 +411,14 @@ bool AbstractMetaBuilder::build()
 
 
     // Start the generation...
-    foreach (ClassModelItem item, typeMap.values()) {
+    foreach (ClassModelItem item, typeMap) {
         AbstractMetaClass *cls = traverseClass(item);
         addAbstractMetaClass(cls);
     }
 
 
-    QHash<QString, NamespaceModelItem> namespaceMap = m_dom->namespaceMap();
-    foreach (NamespaceModelItem item, namespaceMap.values()) {
+    NamespaceList namespaceMap = m_dom->namespaces();
+    foreach (NamespaceModelItem item, namespaceMap) {
         AbstractMetaClass *meta_class = traverseNamespace(item);
         if (meta_class)
             m_meta_classes << meta_class;
@@ -426,7 +426,7 @@ bool AbstractMetaBuilder::build()
 
 
     // Some trickery to support global-namespace enums...
-    QHash<QString, EnumModelItem> enumMap = m_dom->enumMap();
+    EnumList enumMap = m_dom->enums();
     m_current_class = 0;
     foreach (EnumModelItem item, enumMap) {
         AbstractMetaEnum *meta_enum = traverseEnum(item, 0, QSet<QString>());
@@ -695,7 +695,7 @@ AbstractMetaClass *AbstractMetaBuilder::traverseNamespace(NamespaceModelItem nam
 
 
     // Traverse namespaces recursively
-    QList<NamespaceModelItem> inner_namespaces = namespace_item->namespaceMap().values();
+    NamespaceList inner_namespaces = namespace_item->namespaces();
     foreach (const NamespaceModelItem &ni, inner_namespaces) {
         AbstractMetaClass *mjc = traverseNamespace(ni);
         addAbstractMetaClass(mjc);
@@ -1413,7 +1413,7 @@ AbstractMetaClass *AbstractMetaBuilder::traverseClass(ClassModelItem class_item)
 
     // Inner classes
     {
-        QList<ClassModelItem> inner_classes = class_item->classMap().values();
+        ClassList inner_classes = class_item->classes();
         foreach (const ClassModelItem &ci, inner_classes) {
             AbstractMetaClass *cl = traverseClass(ci);
             if (cl) {
