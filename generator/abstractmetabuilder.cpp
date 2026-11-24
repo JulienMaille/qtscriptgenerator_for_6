@@ -40,6 +40,7 @@
 ****************************************************************************/
 
 #include "abstractmetabuilder.h"
+#include "enumexpression.h"
 #include "reporthandler.h"
 
 #include "ast.h"
@@ -716,52 +717,6 @@ AbstractMetaClass *AbstractMetaBuilder::traverseNamespace(NamespaceModelItem nam
     return meta_class;
 }
 
-struct Operator
-{
-    enum Type { Plus, ShiftLeft, None };
-
-    Operator() : type(None) { }
-
-    int calculate(int x) {
-        switch (type) {
-        case Plus: return x + value;
-        case ShiftLeft: return x << value;
-        case None: return x;
-        }
-        return x;
-    }
-
-    Type type;
-    int value;
-};
-
-
-
-Operator findOperator(QString *s) {
-    const char *names[] = {
-        "+",
-        "<<"
-    };
-
-    for (int i=0; i<Operator::None; ++i) {
-        QString name = QLatin1String(names[i]);
-        QString str = *s;
-        int splitPoint = str.indexOf(name);
-        if (splitPoint > 0) {
-            bool ok;
-            QString right = str.mid(splitPoint + name.length());
-            Operator op;
-            op.value = right.toInt(&ok);
-            if (ok) {
-                op.type = Operator::Type(i);
-                *s = str.left(splitPoint).trimmed();
-                return op;
-            }
-        }
-    }
-    return Operator();
-}
-
 int AbstractMetaBuilder::figureOutEnumValue(const QString &stringValue,
                                         int oldValuevalue,
                                         AbstractMetaEnum *meta_enum,
@@ -770,74 +725,34 @@ int AbstractMetaBuilder::figureOutEnumValue(const QString &stringValue,
     if (stringValue.isEmpty())
         return oldValuevalue;
 
-    QStringList stringValues = stringValue.split("|");
-
     int returnValue = 0;
-
-    bool matched = false;
-
-    for (int i=0; i<stringValues.size(); ++i) {
-        QString s = stringValues.at(i).trimmed();
-
-        bool ok;
-        int v;
-
-        Operator op = findOperator(&s);
-
-        if (s.length() > 0 && s.at(0) == QLatin1Char('0'))
-            v = s.toUInt(&ok, 0);
-        else
-            v = s.toInt(&ok);
-
-        if (ok) {
-            matched = true;
-
-        } else if (m_enum_values.contains(s)) {
-            AbstractMetaEnumValue *registered = m_enum_values[s];
-
-            // Qt 6 (audit, F8): the referenced constant may belong to a class
-            // the traversal has not reached yet, in which case its value is
-            // still the default 0 and every enumerator of the current enum
-            // would alias it. Resolve that class first. Skip a class that is
-            // being resolved right now: it is this very enum in the normal
-            // case (an enumerator may only use constants already declared).
-            AbstractMetaEnum *owner = registered->enclosingEnum();
-            AbstractMetaClass *ownerClass = owner ? owner->enclosingClass() : 0;
-            if (!registered->isValueSet() && ownerClass
-                && !m_enum_values_resolving.contains(ownerClass)) {
-                if (!resolveEnumValuesForClass(ownerClass) || !registered->isValueSet()) {
-                    ReportHandler::warning(QString("unresolved enum value '%1' referenced by '%2'")
-                                           .arg(s, meta_enum ? meta_enum->fullName() : QString()));
+    bool matched = EnumExpression::evaluate(stringValue.toStdString(),
+        [&](const std::string &name, int &value) {
+            QString s = QString::fromStdString(name);
+            if (s.startsWith(QLatin1String("::")))
+                s.remove(0, 2);
+            AbstractMetaEnumValue *registered = m_enum_values.value(s, 0);
+            if (registered) {
+                AbstractMetaEnum *owner = registered->enclosingEnum();
+                AbstractMetaClass *ownerClass = owner ? owner->enclosingClass() : 0;
+                if (!registered->isValueSet() && ownerClass
+                    && !m_enum_values_resolving.contains(ownerClass)) {
+                    if (!resolveEnumValuesForClass(ownerClass) || !registered->isValueSet())
+                        return false;
                 }
+                if (!registered->isValueSet())
+                    return false;
+                value = registered->value();
+                return true;
             }
-
-            v = registered->value();
-            matched = true;
-
-        } else {
-            AbstractMetaEnumValue *ev = 0;
-
-            if (meta_enum && (ev = meta_enum->values().find(s))) {
-                v = ev->value();
-                matched = true;
-
-            } else if (meta_enum && (ev = meta_enum->enclosingClass()->findEnumValue(s, meta_enum))) {
-                v = ev->value();
-                matched = true;
-
-            } else {
-                if (meta_enum)
-                    ReportHandler::warning("unhandled enum value: " + s + " in "
-                                           + meta_enum->enclosingClass()->name() + "::"
-                                           + meta_enum->name());
-                else
-                    ReportHandler::warning("unhandled enum value: Unknown enum");
-            }
-        }
-
-        if (matched)
-            returnValue |= op.calculate(v);
-    }
+            AbstractMetaEnumValue *ev = meta_enum ? meta_enum->values().find(s) : 0;
+            if (!ev && meta_enum && meta_enum->enclosingClass())
+                ev = meta_enum->enclosingClass()->findEnumValue(s, meta_enum);
+            if (!ev || !ev->isValueSet())
+                return false;
+            value = ev->value();
+            return true;
+        }, returnValue);
 
     if (!matched) {
         QString warn = QString("unmatched enum %1").arg(stringValue);
@@ -849,7 +764,7 @@ int AbstractMetaBuilder::figureOutEnumValue(const QString &stringValue,
         }
 
         ReportHandler::warning(warn);
-        returnValue = oldValuevalue;
+        return oldValuevalue;
     }
 
     return returnValue;
