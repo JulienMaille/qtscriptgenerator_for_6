@@ -11,7 +11,9 @@
 ** This file contains pre-release code and may not be distributed.
 ** You may use this file in accordance with the terms and conditions
 ** contained in the Technology Preview License Agreement accompanying
-** this package. Because this is a development item intended for usage by Nokia employees. You must ensure you have a license in place to use and/or distribute this work.  ** GNU Lesser General Public License Usage
+** this package.
+**
+** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
 ** General Public License version 2.1 as published by the Free Software
 ** Foundation and appearing in the file LICENSE.LGPL included in the
@@ -81,10 +83,7 @@ public:
   inline pp_output_iterator &operator * () { return *this; }
   inline pp_output_iterator &operator ++ () { return *this; }
   inline pp_output_iterator operator ++ (int) { return *this; }
-  // Fix C2582 in MSVC2010/2012: http://stackoverflow.com/questions/2791525/stl-operator-behavior-change-with-visual-studio-2010
-  inline pp_output_iterator &operator=(const pp_output_iterator<_Container>& __v)
-  {
-    _M_result = __v._M_result;
+  // Fix C2582 in MSVC2010/2012: http://stackoverflow.com/questions/2791525/stl-operator-behavior-change-with_M_result = __v._M_result;
     return *this;
   }
 };
