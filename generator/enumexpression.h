@@ -123,9 +123,11 @@ private:
                 valid = false;
             return value;
         }
-        if (position < text.size() && (isalpha(text[position]) || text[position] == '_')) {
+        if (position < text.size() && (isalpha(text[position]) || text[position] == '_'
+            || text[position] == ':')) {
             size_t start = position;
-            while (position < text.size() && (isalnum(text[position]) || text[position] == '_'))
+            while (position < text.size() && (isalnum(text[position]) || text[position] == '_'
+                   || text[position] == ':'))
                 ++position;
             int value = 0;
             if (!resolver(text.substr(start, position - start), value)) {
