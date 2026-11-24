@@ -422,6 +422,11 @@ protected:
 
 private:
   QHash<QString, NamespaceModelItem> _M_namespaces;
+  // Declaration order of the namespaces, kept next to the name -> item map:
+  // the map is a QHash and its values() order is seeded, which changed the
+  // traversal order in AbstractMetaBuilder from run to run and the emission
+  // order of the generated files. Same pattern as _M_classOrder above.
+  NamespaceList _M_namespaceOrder;
 
 private:
   _NamespaceModelItem(const _NamespaceModelItem &other);

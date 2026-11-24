@@ -672,11 +672,21 @@ FunctionDefinitionList _ScopeModelItem::findFunctionDefinitions(const QString &n
 // ---------------------------------------------------------------------------
 NamespaceList _NamespaceModelItem::namespaces() const
 {
-  return _M_namespaces.values();
+  return _M_namespaceOrder;
 }
 void _NamespaceModelItem::addNamespace(NamespaceModelItem item)
 {
   _M_namespaces.insert(item->name(), item);
+
+  // Keep declaration order for namespaces(), in step with the name -> item
+  // map: a name added twice replaces its entry in place, like addClass().
+  for (int i = 0; i < _M_namespaceOrder.size(); ++i) {
+    if (_M_namespaceOrder.at(i)->name() == item->name()) {
+      _M_namespaceOrder[i] = item;
+      return;
+    }
+  }
+  _M_namespaceOrder.append(item);
 }
 void _NamespaceModelItem::removeNamespace(NamespaceModelItem item)
 {
@@ -684,6 +694,13 @@ void _NamespaceModelItem::removeNamespace(NamespaceModelItem item)
 
   if (it != _M_namespaces.end() && it.value() == item)
     _M_namespaces.erase(it);
+
+  for (int i = 0; i < _M_namespaceOrder.size(); ++i) {
+    if (_M_namespaceOrder.at(i) == item) {
+      _M_namespaceOrder.removeAt(i);
+      break;
+    }
+  }
 }
 
 NamespaceModelItem _NamespaceModelItem::findNamespace(const QString &name) const
