@@ -6,7 +6,7 @@
                  "Only callable with an rvalue (rvalue reference parameter, or '&&' ref-qualifier)":  31,
                  "Return type is deduced ('auto'), not nameable":  70,
                  "Type redefined to not be a class":  0,
-                 "Unmatched argument type":  515,
+                 "Unmatched argument type":  517,
                  "Unmatched return type":  542
              },
     "gui":  {
@@ -15,7 +15,7 @@
                 "Only callable with an rvalue (rvalue reference parameter, or '&&' ref-qualifier)":  31,
                 "Return type is deduced ('auto'), not nameable":  70,
                 "Type redefined to not be a class":  0,
-                "Unmatched argument type":  515,
+                "Unmatched argument type":  517,
                 "Unmatched return type":  542
             },
     "network":  {
@@ -24,7 +24,7 @@
                     "Only callable with an rvalue (rvalue reference parameter, or '&&' ref-qualifier)":  23,
                     "Return type is deduced ('auto'), not nameable":  61,
                     "Type redefined to not be a class":  0,
-                    "Unmatched argument type":  439,
+                    "Unmatched argument type":  441,
                     "Unmatched return type":  524
                 },
     "printsupport":  {
@@ -33,7 +33,7 @@
                          "Only callable with an rvalue (rvalue reference parameter, or '&&' ref-qualifier)":  31,
                          "Return type is deduced ('auto'), not nameable":  194,
                          "Type redefined to not be a class":  0,
-                         "Unmatched argument type":  874,
+                         "Unmatched argument type":  876,
                          "Unmatched return type":  706
                      },
     "sql":  {
@@ -42,7 +42,7 @@
                 "Only callable with an rvalue (rvalue reference parameter, or '&&' ref-qualifier)":  31,
                 "Return type is deduced ('auto'), not nameable":  78,
                 "Type redefined to not be a class":  0,
-                "Unmatched argument type":  533,
+                "Unmatched argument type":  535,
                 "Unmatched return type":  548
             },
     "svg":  {
@@ -51,7 +51,7 @@
                 "Only callable with an rvalue (rvalue reference parameter, or '&&' ref-qualifier)":  31,
                 "Return type is deduced ('auto'), not nameable":  192,
                 "Type redefined to not be a class":  0,
-                "Unmatched argument type":  886,
+                "Unmatched argument type":  888,
                 "Unmatched return type":  726
             },
     "uitools":  {
@@ -60,7 +60,7 @@
                     "Only callable with an rvalue (rvalue reference parameter, or '&&' ref-qualifier)":  31,
                     "Return type is deduced ('auto'), not nameable":  190,
                     "Type redefined to not be a class":  0,
-                    "Unmatched argument type":  864,
+                    "Unmatched argument type":  866,
                     "Unmatched return type":  701
                 },
     "widgets":  {
@@ -69,7 +69,7 @@
                     "Only callable with an rvalue (rvalue reference parameter, or '&&' ref-qualifier)":  31,
                     "Return type is deduced ('auto'), not nameable":  189,
                     "Type redefined to not be a class":  0,
-                    "Unmatched argument type":  862,
+                    "Unmatched argument type":  864,
                     "Unmatched return type":  700
                 },
     "xml":  {
@@ -78,7 +78,7 @@
                 "Only callable with an rvalue (rvalue reference parameter, or '&&' ref-qualifier)":  23,
                 "Return type is deduced ('auto'), not nameable":  39,
                 "Type redefined to not be a class":  0,
-                "Unmatched argument type":  363,
+                "Unmatched argument type":  365,
                 "Unmatched return type":  482
             }
 }

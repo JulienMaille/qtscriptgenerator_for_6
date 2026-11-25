@@ -3,7 +3,7 @@
 This repository ports the Qt Labs Qt Script Generator to Qt 6. It generates
 QtScript bindings from Qt headers and typesystem specifications, builds them as
 script extension plugins, and provides `qs_eval` for running scripts. The Qt 6
-port is tested on Windows with MSVC and Qt 6.8.3 and 6.12.0.
+port is tested on Windows with MSVC and Qt 6.8.3 and 6.12.1.
 
 QtScript is not part of standard Qt 6. The build also requires the separate
 [QtScript Qt 6 port](https://github.com/JulienMaille/qtscript-qt6).
@@ -19,7 +19,7 @@ this Qt 6 build. Not every Qt API can be represented by the generator; see
 ## Requirements
 
 - Windows, a 64-bit MSVC toolchain and PowerShell.
-- Qt 6.8.3 or 6.12.0 with the modules listed in `CMakeLists.txt`, including
+- Qt 6.8.3 or 6.12.1 with the modules listed in `CMakeLists.txt`, including
   the separately built QtScript and QtScriptTools libraries.
 - CMake 3.25 or newer, Ninja, qmake and nmake.
 
